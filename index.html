@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TWO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: wordmark hero, then a shelf of playable cabinets; each opens in a full-screen player */
+  :root {
+    color-scheme: dark;
+    --bg: #0a0e13;
+    --surface: #111821;
+    --line: #223040;
+    --text: #e6eef4;
+    --muted: #8a9cab;
+    --accent: #7fd8ff;
+    --display: "Chakra Petch", "Zen Kaku Gothic New", system-ui, sans-serif;
+    --body: "Zen Kaku Gothic New", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.75;
+  }
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* ----- ヘッダー ----- */
+  header .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .mark { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .12em; text-decoration: none; }
+  .count { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .08em; }
+
+  /* ----- ヒーロー ----- */
+  .hero .wrap { padding-block: 72px 56px; }
+  .hero h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(88px, 22vw, 200px);
+    line-height: .9;
+    letter-spacing: .04em;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { margin: 24px 0 0; max-width: 34em; color: var(--muted); text-wrap: pretty; }
+
+  /* ----- 作品一覧 ----- */
+  .works .wrap { padding-block: 8px 80px; }
+  .label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .card canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 4 / 3; border-bottom: 1px solid var(--line); }
+  .card-body { display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 20px; flex: 1; min-width: 0; }
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .card h2 { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: .04em; line-height: 1.2; text-wrap: balance; }
+  .date { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .card p { margin: 0; font-size: 14px; color: var(--muted); }
+  .how { font-family: var(--mono); font-size: 12px; color: var(--text); opacity: .8; }
+  .play {
+    margin-top: auto;
+    align-self: flex-start;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--accent);
+    font: 600 14px/1 var(--mono);
+    letter-spacing: .08em;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .play:hover { background: var(--accent); color: var(--bg); }
+  .play:focus-visible, .close:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  footer .wrap {
+    padding-block: 24px 32px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ----- プレイ画面（全画面） ----- */
+  .player {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+  .player[hidden] { display: none; }
+  .player-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    padding-bottom: 10px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    border-bottom: 1px solid var(--line);
+  }
+  .player-bar strong { font-family: var(--display); font-size: 18px; letter-spacing: .06em; }
+  .close {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font: 600 13px/1 var(--mono);
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+  .close:hover { border-color: var(--muted); }
+  .player iframe { flex: 1; width: 100%; border: 0; background: #000; }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero .wrap { padding-block: 48px 40px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .play { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="mark" href="#top">TWO</a>
+    <span class="count">3 WORKS</span>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <h1>TW<span>O</span></h1>
+      <p>Claudeと一緒に作ったゲームやシミュレーターを置いています。気になったものは「遊ぶ」を押せば、このページの中ですぐに動かせます。</p>
+    </div>
+  </section>
+
+  <section class="works">
+    <div class="wrap">
+      <h2 class="label"><span>Works</span><span>2026</span></h2>
+      <div class="grid">
+
+        <article class="card">
+          <canvas id="thumb-breaker" width="400" height="300" aria-hidden="true"></canvas>
+          <div class="card-body">
+            <div class="card-head"><h2>Neon Breaker</h2><span class="date">2026.06</span></div>
+            <p>バーでボールを打ち返してブロックを全部壊すブロック崩し。アイテムでバー拡大やボール追加も。</p>
+            <span class="how">← → / マウス · Space で発射</span>
+            <button class="play" type="button" data-src="works/neon-breaker.html" data-title="Neon Breaker">遊ぶ ▶</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <canvas id="thumb-invader" width="400" height="300" aria-hidden="true"></canvas>
+          <div class="card-body">
+            <div class="card-head"><h2>Invader</h2><span class="date">2026.06</span></div>
+            <p>迫ってくる敵の編隊を撃ち落とすシューティング。レベルが上がるごとに敵が速くなります。</p>
+            <span class="how">← → / A D · Space でショット · スマホはボタン</span>
+            <button class="play" type="button" data-src="works/invader.html" data-title="Invader">遊ぶ ▶</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <canvas id="thumb-twin" width="400" height="300" aria-hidden="true"></canvas>
+          <div class="card-body">
+            <div class="card-head"><h2>TWIN STEP</h2><span class="date">2026.10</span></div>
+            <p>左右の脚を別々に動かして、ロボットを10 m歩かせる歩行シミュレーター。重心移動がカギ。</p>
+            <span class="how">WASD + 矢印キー / 画面スティック / ゲームパッド</span>
+            <button class="play" type="button" data-src="works/twin-step.html" data-title="TWIN STEP">遊ぶ ▶</button>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 TWO</div>
+</footer>
+
+<div class="player" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="playerTitle">
+  <div class="player-bar">
+    <strong id="playerTitle"></strong>
+    <button class="close" id="closePlayer" type="button">✕ 閉じる</button>
+  </div>
+  <iframe id="playerFrame" title="作品のプレイ画面" allow="gamepad; fullscreen"></iframe>
+</div>
+
+<script>
+  // ----- プレイ画面の開閉 -----
+  const player = document.getElementById("player");
+  const frame = document.getElementById("playerFrame");
+  const playerTitle = document.getElementById("playerTitle");
+  let opener = null;
+
+  function openPlayer(button) {
+    opener = button;
+    playerTitle.textContent = button.dataset.title;
+    frame.src = button.dataset.src;
+    player.hidden = false;
+    document.body.style.overflow = "hidden";
+    frame.addEventListener("load", () => frame.focus(), { once: true });
+  }
+
+  function closePlayer() {
+    player.hidden = true;
+    frame.src = "about:blank";
+    document.body.style.overflow = "";
+    if (opener) opener.focus();
+  }
+
+  document.querySelectorAll(".play").forEach((b) => b.addEventListener("click", () => openPlayer(b)));
+  document.getElementById("closePlayer").addEventListener("click", closePlayer);
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !player.hidden) closePlayer(); });
+
+  // ----- サムネイル（各ゲームの色で描いた静止画） -----
+  function drawBreaker(ctx, w, h) {
+    ctx.fillStyle = "#0d1015"; ctx.fillRect(0, 0, w, h);
+    const colors = ["#f5b84b", "#50c7d8", "#e45f67", "#71c671", "#d98ae8"];
+    const cols = 8, gap = 6, left = 28, bw = (w - left * 2 - gap * (cols - 1)) / cols;
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < cols; c++) {
+        if ((r === 4 && c % 3 === 1) || (r === 3 && c === 5)) continue;
+        ctx.fillStyle = colors[(r + c) % colors.length];
+        ctx.beginPath(); ctx.roundRect(left + c * (bw + gap), 34 + r * 24, bw, 18, 4); ctx.fill();
+      }
+    }
+    const pg = ctx.createLinearGradient(150, 0, 250, 0);
+    pg.addColorStop(0, "#50c7d8"); pg.addColorStop(.5, "#f5b84b"); pg.addColorStop(1, "#e45f67");
+    ctx.fillStyle = pg; ctx.beginPath(); ctx.roundRect(150, 262, 100, 12, 6); ctx.fill();
+    ctx.fillStyle = "#f7fbff"; ctx.shadowColor = "#50c7d8"; ctx.shadowBlur = 14;
+    ctx.beginPath(); ctx.arc(232, 196, 7, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+  }
+
+  function drawInvader(ctx, w, h) {
+    ctx.fillStyle = "#05070b"; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 60; i++) {
+      ctx.globalAlpha = .2 + (i * 37 % 60) / 100;
+      ctx.fillStyle = "#d8fbff"; ctx.fillRect((i * 97) % w, (i * 53) % h, 1.5, 1.5);
+    }
+    ctx.globalAlpha = 1;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 6; c++) {
+        const x = 72 + c * 52, y = 54 + r * 40;
+        ctx.fillStyle = r % 2 ? "#ffcb3d" : "#35d07f";
+        ctx.fillRect(x - 13, y - 8, 26, 16); ctx.fillRect(x - 19, y - 2, 38, 10);
+        ctx.fillRect(x - 17, y + 10, 7, 4); ctx.fillRect(x + 10, y + 10, 7, 4);
+        ctx.fillStyle = "#05070b"; ctx.fillRect(x - 7, y - 4, 4, 4); ctx.fillRect(x + 4, y - 4, 4, 4);
+      }
+    }
+    ctx.fillStyle = "#edf7ff"; ctx.fillRect(198, 196, 4, 14);
+    ctx.fillStyle = "#ff5672"; ctx.fillRect(122, 170, 5, 13);
+    ctx.fillStyle = "#37c8ff";
+    ctx.fillRect(180, 252, 40, 10); ctx.fillRect(189, 243, 22, 10); ctx.fillRect(197, 234, 6, 10);
+    ctx.fillStyle = "rgba(53,208,127,.25)"; ctx.fillRect(0, h - 22, w, 2);
+  }
+
+  function drawTwin(ctx, w, h) {
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#132b3e"); g.addColorStop(1, "#0d1924");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "#233b49"; ctx.lineWidth = 1;
+    for (let i = 0; i < 9; i++) {
+      const y = 190 + i * i * 2.4 + i * 6;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    for (let i = -6; i <= 6; i++) {
+      ctx.beginPath(); ctx.moveTo(200 + i * 14, 190); ctx.lineTo(200 + i * 60, h); ctx.stroke();
+    }
+    ctx.strokeStyle = "#6ce3c4"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(150, 200); ctx.lineTo(250, 200); ctx.stroke();
+    const limb = (pts, color, width) => {
+      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+      pts.slice(1).forEach(([x, y]) => ctx.lineTo(x, y)); ctx.stroke();
+    };
+    limb([[186, 160], [176, 205], [180, 252]], "#6ce3c4", 12);
+    limb([[214, 160], [232, 196], [222, 230]], "#72a9ff", 12);
+    ctx.fillStyle = "#6ce3c4"; ctx.fillRect(166, 250, 30, 10);
+    ctx.fillStyle = "#72a9ff"; ctx.fillRect(210, 228, 30, 10);
+    ctx.fillStyle = "#405a6c"; ctx.fillRect(176, 146, 48, 18);
+    ctx.fillStyle = "#bbcfd8"; ctx.fillRect(178, 102, 44, 46);
+    ctx.fillStyle = "#6ce3c4"; ctx.fillRect(190, 118, 20, 4);
+    ctx.fillStyle = "#d4e3e8"; ctx.fillRect(184, 70, 32, 26);
+    ctx.fillStyle = "#6ce3c4"; ctx.fillRect(190, 78, 20, 6);
+  }
+
+  [["thumb-breaker", drawBreaker], ["thumb-invader", drawInvader], ["thumb-twin", drawTwin]].forEach(([id, fn]) => {
+    const c = document.getElementById(id);
+    fn(c.getContext("2d"), c.width, c.height);
+  });
+</script>
+</body>
+</html>

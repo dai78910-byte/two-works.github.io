@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="左右のスティックで両脚を動かすロボット歩行シミュレーター。重心を移して一歩ずつ。">
+  <meta name="color-scheme" content="dark">
+  <title>TWIN STEP — 両脚歩行ラボ</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b1620'/%3E%3Cpath d='M8 7h6v13H7v6h9V7M19 7h6v13h-7v6h9' fill='%236ce3c4'/%3E%3C/svg%3E">
+  <style>
+*{box-sizing:border-box} :root{font-family:"Segoe UI","Yu Gothic UI",Meiryo,sans-serif;color:#e3edf1;background:#0b1219;font-synthesis:none;--mint:#6ce3c4;--blue:#72a9ff;--line:#24333f;--muted:#94a8b7}body{margin:0}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:7px;min-height:40px;padding:8px 14px;color:#dbe6ed;background:#182530;transition:background .16s,border-color .16s}button:hover{background:#253845;border-color:#577080}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,canvas:focus-visible{outline:2px solid var(--mint);outline-offset:4px}button.primary{background:var(--mint);color:#09261e;border-color:var(--mint);font-weight:650}button.primary:hover{background:#9cebd8}button.quiet{background:#15212b}button.text-button{padding:0;min-height:28px;border:0;background:none;color:var(--mint);font-size:.82rem}.app{max-width:1540px;margin:auto;padding:0 32px}.topbar{height:96px;display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--line);margin-bottom:28px}.brand{display:flex;align-items:center;gap:13px;margin-right:auto}.brand-icon{display:grid;place-items:center;width:40px;height:46px;border:1px solid #3b615c;color:var(--mint);border-radius:6px;font-size:28px;font-weight:800}.brand h1{font-size:1.22rem;letter-spacing:.15em;margin:0 0 3px;font-weight:700}.sub{font-size:.8rem;color:var(--muted);letter-spacing:.09em}.connection{display:flex;gap:9px;align-items:center;font-size:.86rem;color:var(--muted)}.led{width:7px;height:7px;border-radius:50%;background:#687b89}.connection.connected{color:var(--mint)}.connection.connected .led{background:var(--mint);box-shadow:0 0 10px #6ce3c44a}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 318px;gap:24px;align-items:start}.stage-shell{position:relative;overflow:hidden;background:#101f2c;border:1px solid #263b4a;border-radius:12px;min-width:0}.stage-top{position:absolute;top:22px;left:24px;right:24px;display:flex;justify-content:space-between;z-index:1;pointer-events:none}.eyebrow{font-size:.73rem;letter-spacing:.14em;color:#9db5c6;font-weight:600}.state-tag{font-size:.8rem;color:var(--mint);padding:5px 9px;border:1px solid #41625e;border-radius:4px;background:#142e2b}.state-tag.warning{color:#ffc078;border-color:#765539;background:#3b2b1e}canvas{width:100%;height:560px;display:block;outline:none;touch-action:none}.telemetry{position:absolute;left:26px;right:26px;bottom:106px;display:flex;gap:40px;align-items:center;pointer-events:none}.telemetry>div>span{font-size:.8rem;color:#9db0bd;display:block;margin-bottom:8px}.telemetry strong{font-size:2rem;font-weight:500;font-variant-numeric:tabular-nums}.telemetry b{font-weight:500}.telemetry small{font-size:.85rem;color:#98abb8}.balance-metric{margin-left:auto;min-width:130px;max-width:180px;width:23%}.balance-metric>span{display:flex!important;justify-content:space-between;gap:20px}.meter{height:5px;border-radius:3px;background:#2b3e4b;overflow:hidden}.meter i{display:block;height:100%;background:var(--mint);width:100%;transition:width .15s}.hint{position:absolute;bottom:54px;left:24px;right:24px;padding:12px 16px;background:#0b1924d9;border:1px solid #2d4859;border-radius:7px;text-align:center;font-size:.86rem;backdrop-filter:blur(7px)}.stage-footer{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-top:1px solid #263b4a;font-size:.73rem;color:#92a9ba;gap:12px}.stage-footer i{display:inline-block;height:7px;width:7px;border-radius:2px;margin-right:6px}.left-swatch{background:var(--mint)}.right-swatch{background:var(--blue);margin-left:16px}.sidebar{display:flex;flex-direction:column;gap:16px}.panel{padding:20px;background:#111c26;border:1px solid var(--line);border-radius:10px}.panel-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px}.panel h2{margin:0;font-size:.94rem;font-weight:600}.tiny{font-size:.72rem;letter-spacing:.06em;color:#849bad}.intro{font-size:.9rem;line-height:1.8;margin:0 0 18px;color:#c3d2dc}.actions{display:flex;gap:8px}.actions .primary{flex:1}.micro{font-size:.76rem;line-height:1.7;color:var(--muted);margin:12px 0 0}.presets{display:flex;gap:5px;margin-bottom:20px}.presets button{flex:1;padding:7px 4px;min-height:35px;font-size:.83rem}.presets button.selected{background:#244039;border-color:#4a8c7b;color:#9befd9}.range-label{display:flex;justify-content:space-between;align-items:center;font-size:.83rem;color:#c2d2dc;margin:17px 0 8px;gap:8px}.range-label output{font-variant-numeric:tabular-nums;color:var(--mint);font-size:.8rem}input[type=range]{display:block;width:100%;height:16px;accent-color:var(--mint);margin:0;cursor:pointer}.range-ends{display:flex;justify-content:space-between;color:#8299aa;font-size:.72rem;margin-top:5px}.sticks{display:flex;justify-content:space-around;gap:12px}.sticks>div{text-align:center}.leg-label{display:block;font-size:.8rem;font-weight:600;margin-bottom:10px}.left{color:var(--mint)}.right{color:var(--blue)}.stick-pad{position:relative;width:90px;height:90px;border:1px solid #344753;border-radius:50%;background:#0c1720;touch-action:none;cursor:crosshair}.cross-x,.cross-y{position:absolute;background:#283c4a}.cross-x{left:12px;right:12px;top:44px;height:1px}.cross-y{top:12px;bottom:12px;left:44px;width:1px}.stick-pad i{position:absolute;width:15px;height:15px;left:calc(50% - 7.5px);top:calc(50% - 7.5px);background:var(--mint);border-radius:50%;box-shadow:0 0 13px #6ce3c43a;pointer-events:none}#padRight i{background:var(--blue);box-shadow:0 0 13px #72a9ff38}.foot-status{display:block;margin-top:9px;font-size:.76rem;color:var(--muted)}.weight{display:flex;align-items:center;gap:8px;margin-top:20px;font-size:.72rem;color:var(--muted)}.weight>div{flex:1;height:4px;background:var(--blue);border-radius:3px;overflow:hidden}.weight i{display:block;background:var(--mint);height:100%;width:50%}details{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}summary{font-size:.8rem;color:#b4c8d5;cursor:pointer}.axis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.axis-grid label{font-size:.78rem;color:#a5bac8}select{width:100%;border:1px solid #3a4b59;border-radius:5px;background:#101c26;color:#d9e8ef;padding:7px;font-size:.8rem;margin-top:5px}.check{display:flex;gap:8px;align-items:center;font-size:.8rem;margin-top:16px}.check input{accent-color:var(--mint)}#learnAxes{font-size:.8rem;width:100%;margin-top:14px}.help{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:28px;margin-top:24px;border:1px solid var(--line);border-radius:10px;background:#111c26}.help[hidden],.fall-overlay[hidden]{display:none}.help h3{font-size:.94rem;margin:9px 0;color:#dfeaf0}.help p{font-size:.83rem;line-height:1.85;color:#9fb5c4;margin:0}.guide-number{font-size:.74rem;color:var(--mint);font-family:monospace}kbd{font-size:.74rem;border:1px solid #3a5163;background:#162531;color:#b9cddc;border-radius:3px;display:inline-block;padding:0 5px;margin-right:3px;min-width:20px;text-align:center}.page-footer{display:flex;justify-content:space-between;gap:16px;padding:22px 0 28px;color:#7690a3;font-size:.75rem}.fall-overlay{position:absolute;inset:0 0 40px;z-index:3;display:flex;align-items:center;justify-content:center;background:#07131b82;backdrop-filter:blur(4px)}.fall-overlay>div{max-width:380px;text-align:center;padding:28px;background:#101e29f2;border:1px solid #385263;border-radius:12px;margin:20px}.fall-overlay h2{font-weight:500;font-size:1.5rem}.fall-overlay p{color:#b3c9d7;line-height:1.85;font-size:.9rem;margin-bottom:24px}@media(min-width:1450px){canvas{height:660px}}@media(max-width:1050px){.app{padding:0 20px}.workspace{gap:16px;grid-template-columns:minmax(0,1fr) 290px}.telemetry{gap:24px}.balance-metric{min-width:110px}.help{grid-template-columns:1fr 1fr}.stage-footer{font-size:.68rem}}@media(max-width:800px){.topbar{height:82px;gap:12px;margin-bottom:18px}.workspace{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.input-panel{grid-column:1/-1}.input-panel .sticks{justify-content:center;gap:70px}.telemetry{gap:30px}.stage-footer{font-size:.75rem}canvas{height:520px}.connection{font-size:.75rem;max-width:150px}.panel{padding:18px}}@media(max-width:480px){.app{padding:0 12px}.brand h1{font-size:.92rem}.brand-icon{width:32px;height:36px;font-size:22px}.brand{gap:8px}.sub{font-size:.7rem}.topbar{gap:10px}.topbar button{font-size:.72rem;padding:6px 9px;min-height:34px}.connection{max-width:108px;font-size:.7rem}.connection .led{flex-shrink:0}.sidebar{display:flex}.stage-top{left:16px;right:16px;top:16px}.eyebrow{font-size:.65rem}canvas{height:470px}.telemetry{left:18px;right:18px;gap:22px;bottom:116px}.telemetry strong{font-size:1.6rem}.telemetry>div>span{font-size:.73rem}.balance-metric{min-width:86px;width:29%}.hint{left:12px;right:12px;bottom:55px;font-size:.8rem;padding:10px}.stage-footer{padding:0 14px;font-size:.65rem}.stage-footer>span:last-child{max-width:145px;text-align:right}.help{grid-template-columns:1fr;padding:20px;gap:22px}.page-footer{font-size:.67rem}}
+
+</style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon" aria-hidden="true">Ⅱ</span><div><h1>TWIN STEP</h1><span class="sub">両脚歩行ラボ</span></div></div>
+      <div class="connection" id="connection"><span class="led"></span><span id="connectionText">コントローラー待機</span></div>
+      <button class="quiet" id="helpButton" aria-expanded="false" aria-controls="help">操作ガイド</button>
+    </header>
+    <section class="workspace">
+      <div class="stage-shell">
+        <div class="stage-top"><span class="eyebrow">BIPED / TRAINING FLOOR</span><span id="runState" class="state-tag">準備完了</span></div>
+        <canvas id="scene" tabindex="0" aria-label="ロボット歩行シミュレーション。キーボードまたは左右のスティックで操作できます。"></canvas>
+        <div class="telemetry"><div><span>歩いた距離</span><strong><b id="distance">0.00</b><small> m</small></strong></div><div><span>着地回数</span><strong id="steps">0</strong></div><div class="balance-metric"><span>安定度 <b id="stabilityValue">100%</b></span><div class="meter"><i id="stabilityBar"></i></div></div></div>
+        <div class="hint" id="hint" role="status">横に体重を移して、反対の脚を前へ。</div>
+        <div class="fall-overlay" id="fallOverlay" hidden><div><span class="eyebrow">BALANCE LOST</span><h2>もう一歩、試そう。</h2><p id="fallReason"></p><button class="primary" id="retry">立ち上がる</button></div></div>
+        <div class="stage-footer"><span><i class="left-swatch"></i>左脚 <i class="right-swatch"></i>右脚</span><span>簡易バランスモデル / 目標 10 m</span></div>
+      </div>
+      <aside class="sidebar">
+        <section class="panel play-panel"><div class="panel-title"><h2>歩行コントロール</h2><span class="tiny">MANUAL</span></div><p class="intro">支える脚に体重を移して、<br>もう片方の脚を前へ。</p><div class="actions"><button id="start" class="primary">歩行を始める</button><button id="reset" class="quiet">リセット</button></div><p class="micro" id="inputNote">画面をクリックし、コントローラーのボタンを1回押してください。</p></section>
+        <section class="panel"><div class="panel-title"><h2>操作の難しさ</h2><span id="presetName" class="tiny">標準</span></div><div class="presets" role="group" aria-label="難易度"><button data-preset="easy">やさしい</button><button data-preset="normal" class="selected" aria-pressed="true">標準</button><button data-preset="hard">シビア</button></div><label class="range-label" for="assist">姿勢アシスト <output id="assistValue">58%</output></label><input id="assist" type="range" min="0" max="100" value="58"><div class="range-ends"><span>自分で支える</span><span>倒れにくい</span></div><label class="range-label" for="severity">転倒のシビアさ <output id="severityValue">50%</output></label><input id="severity" type="range" min="0" max="100" value="50"><label class="range-label" for="speed">脚の移動速度 <output id="speedValue">1.00×</output></label><input id="speed" type="range" min="35" max="140" value="100"></section>
+        <section class="panel input-panel"><div class="panel-title"><h2>スティック入力</h2><button id="calibrate" class="text-button">中心を補正</button></div><div class="sticks"><div><span class="leg-label left">L · 左脚</span><div class="stick-pad" id="padLeft" aria-label="画面左スティック"><span class="cross-x"></span><span class="cross-y"></span><i id="dotLeft"></i></div><span id="footLeft" class="foot-status">接地</span></div><div><span class="leg-label right">R · 右脚</span><div class="stick-pad" id="padRight" aria-label="画面右スティック"><span class="cross-x"></span><span class="cross-y"></span><i id="dotRight"></i></div><span id="footRight" class="foot-status">接地</span></div></div><div class="weight"><span>左荷重</span><div><i id="loadLeft"></i></div><span>右荷重</span></div><p class="micro">上：脚を上げて前へ　下：後ろへ<br>中央に戻す：着地　横：体重移動</p><details id="deviceSettings"><summary>接続・軸の設定</summary><label class="range-label" for="device">使用するコントローラー</label><select id="device"><option value="auto">自動検出</option></select><p class="micro" id="deviceInfo">未検出 · キーボードでも操作できます</p><div class="axis-grid"><label>左 X<select id="axisLX"></select></label><label>左 Y<select id="axisLY"></select></label><label>右 X<select id="axisRX"></select></label><label>右 Y<select id="axisRY"></select></label></div><label class="check"><input id="invertY" type="checkbox"> 上下を反転</label><label class="range-label" for="deadzone">入力の遊び <output id="deadzoneValue">12%</output></label><input id="deadzone" type="range" min="0" max="40" value="12"><button id="learnAxes" class="quiet">4方向の軸を自動設定</button><p id="learnNote" class="micro"></p></details></section>
+      </aside>
+    </section>
+    <section class="help" id="help" hidden><div><span class="guide-number">01</span><h3>右に乗る</h3><p>両スティックを少し右へ。右脚に体重を移します。</p></div><div><span class="guide-number">02</span><h3>左脚を出す</h3><p>左を右上へ倒して前へ。中央に戻すと着地します。</p></div><div><span class="guide-number">03</span><h3>交互に繰り返す</h3><p>次は両方を左へ、右を左上へ。短い歩幅が安定します。</p></div><div class="keyboard"><h3>キーボード / 画面操作</h3><p>左脚 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><br>右脚 <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><br><kbd>Space</kbd>開始・停止　<kbd>R</kbd>リセット<br>丸い入力欄をドラッグしても操作できます。</p><p class="micro">Start：開始・停止 / A・×：転倒後の復帰</p></div></section>
+    <footer class="page-footer"><span>一歩ずつ、重心をつかむ。</span><span>WASD + 矢印キーでも操作可能</span></footer>
+  </main>
+  <script>
+(()=>{
+// sim.js
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const PRESETS = {
+  easy: { assist: 86, severity: 22, speed: 0.82 },
+  normal: { assist: 58, severity: 50, speed: 1 },
+  hard: { assist: 12, severity: 88, speed: 1.08 }
+};
+
+// A fixed-step, game-oriented balance model. Feet are independent actuators;
+// planted feet are world anchors and the torso follows their support region.
+class Walker {
+  constructor(settings = PRESETS.normal) { this.settings = { ...settings }; this.reset(); }
+  reset() {
+    this.feet = [
+      { x: -0.22, y: 0, z: 0.06, phase: 'stance', direction: 0, swing: 0 },
+      { x: 0.22, y: 0, z: -0.06, phase: 'stance', direction: 0, swing: 0 }
+    ];
+    this.x = 0; this.z = 0; this.vx = 0; this.vz = 0;
+    this.roll = 0; this.pitch = 0; this.rollV = 0; this.pitchV = 0;
+    this.time = 0; this.steps = 0; this.distance = 0; this.maxDistance = 0;
+    this.instability = 0; this.airTime = 0; this.fallen = false; this.fallTime = 0;
+    this.load = [0.5, 0.5]; this.stability = 1; this.lastPlant = -1;
+    this.message = '横に体重を移して、反対の脚を前へ。'; this.reason = '';
+  }
+  step(dt, input) {
+    dt = clamp(dt, 0, 0.025);
+    if (this.fallen) { this.fallTime = Math.min(1.5, this.fallTime + dt); return; }
+    this.time += dt;
+    const assist = clamp(this.settings.assist / 100, 0, 1);
+    const severe = clamp(this.settings.severity / 100, 0, 1);
+    const speed = clamp(this.settings.speed, 0.35, 1.4);
+    const sticks = [input.left, input.right];
+    const balance = clamp((sticks[0].x + sticks[1].x) / 2, -1, 1);
+    const centerX = (this.feet[0].x + this.feet[1].x) / 2;
+    const wishX = centerX + balance * 0.34;
+    this.vx += ((wishX - this.x) * 30 - this.vx * 10) * dt;
+    this.x += this.vx * dt;
+    for (let i = 0; i < 2; i++) {
+      const f = this.feet[i], s = sticks[i];
+      const drive = -s.y;
+      if (f.phase === 'stance' && Math.abs(drive) > 0.28) {
+        f.phase = 'swing'; f.direction = Math.sign(drive); f.startZ = f.z;
+        f.goalZ = this.z + f.direction * (0.52 + 0.16 * Math.abs(drive));
+        f.swing = 0;
+      }
+      if (f.phase === 'swing') {
+        if (Math.abs(drive) <= 0.18 || Math.sign(drive) !== f.direction) {
+          f.phase = 'landing';
+        } else {
+          f.swing += dt;
+          f.y = lerp(f.y, 0.25 + 0.08 * Math.abs(drive), 1 - Math.exp(-dt * 13));
+          f.z += clamp(f.goalZ - f.z, -speed * dt * 1.35, speed * dt * 1.35);
+          f.x = lerp(f.x, (i === 0 ? -0.22 : 0.22) + s.x * 0.07, 1 - Math.exp(-dt * 7));
+        }
+      }
+      if (f.phase === 'landing') {
+        f.y = Math.max(0, f.y - dt * (0.85 + assist * 0.45));
+        if (f.y <= 0.001) {
+          f.y = 0; f.phase = 'stance';
+          if (Math.abs(f.z - f.startZ) > 0.1) { this.steps++; this.lastPlant = i; }
+        }
+      }
+    }
+    const support = this.feet.filter(f => f.phase === 'stance' || f.y < 0.035);
+    const meanZ = (this.feet[0].z + this.feet[1].z) / 2;
+    const wishZ = (support.length === 1 ? support[0].z : meanZ) + 0.025;
+    this.vz += ((wishZ - this.z) * (7 + assist * 5) - this.vz * (5 + assist * 2)) * dt;
+    this.z += this.vz * dt;
+    const stanceSpan = Math.abs(this.feet[0].z - this.feet[1].z);
+    let ex = 0, ez = 0;
+    if (support.length) {
+      const minX = Math.min(...support.map(f => f.x)) - 0.09;
+      const maxX = Math.max(...support.map(f => f.x)) + 0.09;
+      // Fore/aft recovery has a built-in stepping envelope: the player has
+      // two foot actuators, while lateral weight transfer remains manual.
+      const minZ = Math.min(...support.map(f => f.z)) - 0.5;
+      const maxZ = Math.max(...support.map(f => f.z)) + 0.3;
+      ex = this.x - clamp(this.x, minX, maxX);
+      ez = this.z - clamp(this.z, minZ, maxZ);
+      if (support.length === 1) {
+        const autoX = support[0].x;
+        this.x = lerp(this.x, autoX, dt * assist * 4);
+        ex *= 1 - assist * 0.7;
+        ez *= 1 - assist * 0.55;
+      }
+      this.airTime = Math.max(0, this.airTime - dt * 3);
+    } else { this.airTime += dt; ex = balance * 0.11; ez = 0.11; }
+    const noise = Math.sin(this.time * 3.4) * severe * (1 - assist) * 0.055;
+    const rollTarget = ex * (1.5 + severe) + balance * 0.06 + noise;
+    const pitchTarget = ez * (1.2 + severe) - this.vz * 0.07;
+    this.rollV += ((rollTarget - this.roll) * 20 - this.rollV * (5 + assist * 5)) * dt;
+    this.pitchV += ((pitchTarget - this.pitch) * 20 - this.pitchV * (5 + assist * 5)) * dt;
+    this.roll += this.rollV * dt; this.pitch += this.pitchV * dt;
+    const error = Math.hypot(ex, ez);
+    const allowance = 0.04 + assist * 0.105 - severe * 0.018;
+    const overreach = Math.max(0, stanceSpan - (0.95 + assist * 0.16));
+    const unsupported = support.length === 0 ? 0.8 + severe * 0.8 : 0;
+    const danger = Math.max(0, error - allowance) * (5 + severe * 12) + overreach * 2 + unsupported;
+    this.instability = clamp(this.instability + dt * (danger > 0.015 ? danger : -0.85 - assist), 0, 1.25);
+    const width = this.feet[1].x - this.feet[0].x;
+    const rightLoad = clamp((this.x - this.feet[0].x) / Math.max(0.1, width), 0, 1);
+    this.load = support.length === 0 ? [0, 0] : support.length === 1 ? [support[0] === this.feet[0] ? 1 : 0, support[0] === this.feet[1] ? 1 : 0] : [1 - rightLoad, rightLoad];
+    this.stability = clamp(1 - this.instability, 0, 1);
+    this.distance = this.z; this.maxDistance = Math.max(this.maxDistance, this.z);
+    if (this.airTime > 0.32 + assist * 0.62 || this.instability >= 1 || Math.abs(this.roll) > 0.72 || Math.abs(this.pitch) > 0.8) {
+      this.fallen = true;
+      this.reason = !support.length ? '両脚が浮きました。片脚は地面に残しましょう。' : overreach > 0 ? '大股になりすぎました。短い歩幅で交互に。' : '重心が支持脚から外れました。先に横へ体重を移しましょう。';
+      this.message = this.reason;
+    } else if (support.length === 0) this.message = '両脚が浮いています！ 片方を戻して着地。';
+    else if (this.instability > 0.3) this.message = 'バランス注意。地面についている脚の側へ体重を。';
+    else if (this.feet[0].phase === 'swing') this.message = '左脚を移動中。左スティックを戻すと着地。';
+    else if (this.feet[1].phase === 'swing') this.message = '右脚を移動中。右スティックを戻すと着地。';
+    else if (this.load[1] > 0.68) this.message = '右脚で支えています。左スティックを上へ。';
+    else if (this.load[0] > 0.68) this.message = '左脚で支えています。右スティックを上へ。';
+    else this.message = '両スティックを横へ倒し、反対の脚を前へ。';
+  }
+  snapshot() {
+    return { distance: +this.distance.toFixed(3), steps: this.steps, fallen: this.fallen,
+      stability: +this.stability.toFixed(3), feet: this.feet.map(f => ({ ...f })), settings: { ...this.settings } };
+  }
+}
+
+
+// renderer.js
+const add=(a,b)=>a.map((v,i)=>v+b[i]);
+const sub=(a,b)=>a.map((v,i)=>v-b[i]);
+const mul=(a,s)=>a.map(v=>v*s);
+const dot=(a,b)=>a.reduce((v,x,i)=>v+x*b[i],0);
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const norm=a=>mul(a,1/(Math.hypot(...a)||1));
+class Renderer {
+  constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.resize();this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(canvas);}
+  resize(){const r=this.canvas.getBoundingClientRect();this.w=r.width;this.h=r.height;this.dpr=Math.min(devicePixelRatio||1,2);this.canvas.width=Math.round(this.w*this.dpr);this.canvas.height=Math.round(this.h*this.dpr);this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);}
+  project(p){const v=sub(p,this.eye),d=dot(v,this.forward);if(d<.08)return null;return{x:this.w*.5+dot(v,this.right)*this.focal/d,y:this.h*.44-dot(v,this.up)*this.focal/d,d};}
+  line(a,b,color,width=1){const p=this.project(a),q=this.project(b);if(!p||!q)return;const c=this.ctx;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.strokeStyle=color;c.lineWidth=width;c.stroke();}
+  polygon(points,color,stroke){const ps=points.map(p=>this.project(p));if(ps.some(p=>!p))return;const c=this.ctx;c.beginPath();ps.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.fillStyle=color;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=1;c.stroke();}}
+  box(center,size,color,basis){const axes=basis||[[1,0,0],[0,1,0],[0,0,1]];const verts=[];for(let i=0;i<8;i++){let p=center.slice();for(let j=0;j<3;j++)p=add(p,mul(axes[j],((i>>j)&1?1:-1)*size[j]/2));verts.push(p);}const faces=[[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];const light=[.63,.88,.72,1,.65,.9];faces.forEach((f,i)=>{const ps=f.map(n=>verts[n]);const depth=dot(sub(ps.reduce((a,p)=>add(a,mul(p,.25)),[0,0,0]),this.eye),this.forward);this.faces.push({ps,depth,color:shade(color,light[i])});});}
+  limb(a,b,width,color){const y=norm(sub(b,a));const x=norm(cross(y,[0,0,1]));const z=norm(cross(x,y));this.box(mul(add(a,b),.5),[width,Math.hypot(...sub(b,a)),width],color,[x,y,z]);}
+  joint(p,r,color){const q=this.project(p);if(!q)return;this.circles.push({p:q,r:r*this.focal/q.d,color});}
+  draw(s){const c=this.ctx,w=this.w,h=this.h;c.clearRect(0,0,w,h);const grad=c.createLinearGradient(0,0,0,h);grad.addColorStop(0,'#132b3e');grad.addColorStop(.6,'#101f2d');grad.addColorStop(1,'#0d1924');c.fillStyle=grad;c.fillRect(0,0,w,h);
+    const narrow=w<500;this.eye=[3.8,2.7,s.z-5.6];this.forward=norm(sub([0,.8,s.z+.12],this.eye));this.right=norm(cross([0,1,0],this.forward));this.up=norm(cross(this.forward,this.right));this.focal=Math.min(w*(narrow?1.6:1.15),h*1.6);this.faces=[];this.circles=[];
+    const floorZ=Math.floor(s.z);
+    this.polygon([[-12,0,s.z-10],[12,0,s.z-10],[12,0,s.z+40],[-12,0,s.z+40]],'#152632');
+    for(let z=floorZ-9;z<floorZ+24;z++){this.line([-7,0,z],[7,0,z],z%5===0?'#355260':'#233b49');}
+    for(let x=-7;x<=7;x++)this.line([x,0,floorZ-9],[x,0,floorZ+24],x===-1||x===1?'#486456':'#263e4c',x===-1||x===1?1.4:1);
+    for(let z=Math.max(0,Math.floor((s.z-3)/5)*5);z<s.z+14;z+=5){const p=this.project([-1.2,.005,z]);if(p){c.fillStyle='#698a9d';c.font='12px Segoe UI';c.textAlign='right';c.fillText(z+' m',p.x,p.y);}}
+    this.line([-1,.006,10],[1,.006,10],'#6ce3c4',3);const goal=this.project([0,.08,10]);if(goal){c.fillStyle='#91d9c5';c.font='12px Segoe UI';c.textAlign='center';c.fillText('10 m',goal.x,goal.y-12);}
+    // Ground shadow and exact planted footprints make support legible.
+    const p=this.project([s.x,.006,s.z]);if(p){c.save();c.translate(p.x,p.y);c.scale(1,.3);const shadow=c.createRadialGradient(0,0,1,0,0,80);shadow.addColorStop(0,'#00000065');shadow.addColorStop(1,'#00000000');c.fillStyle=shadow;c.beginPath();c.ellipse(0,0,80,80,0,0,Math.PI*2);c.fill();c.restore();}
+    const fall=s.fallen?Math.min(1,s.fallTime/0.65):0;const bodyY=1.1-fall*.88;const roll=s.roll+fall*(s.roll<0?-1.25:1.25),pitch=s.pitch+fall*.55;
+    const rot=(v)=>{const y=v[1]*Math.cos(roll)-v[0]*Math.sin(roll),x=v[0]*Math.cos(roll)+v[1]*Math.sin(roll);return[x,y*Math.cos(pitch)-v[2]*Math.sin(pitch),y*Math.sin(pitch)+v[2]*Math.cos(pitch)];};
+    const local=v=>add([s.x,bodyY,s.z],rot(v));const basis=[[1,0,0],[0,1,0],[0,0,1]].map(rot);
+    for(let i=0;i<2;i++){const f=s.feet[i],color=i===0?'#6ce3c4':'#72a9ff';if(f.y<.04)this.polygon([[f.x-.13,.007,f.z-.17],[f.x+.13,.007,f.z-.17],[f.x+.13,.007,f.z+.24],[f.x-.13,.007,f.z+.24]],i===0?'#2b5d54':'#2c466d');
+      const ankle=[f.x,Math.max(.09,f.y+.09),f.z];const hip=local([i===0?-.2:.2,-.12,0]);const diff=sub(ankle,hip),d=Math.min(.97,Math.hypot(...diff));const bend=Math.sqrt(Math.max(.016,.51*.51-d*d/4));const knee=add(mul(add(hip,ankle),.5),[0,0,bend]);
+      this.box([f.x,f.y+.055,f.z+.035],[.21,.11,.36],color);this.limb(ankle,knee,.12,'#a1b7c3');this.limb(knee,hip,.17,color);this.box(knee,[.19,.18,.19],'#263d50');this.joint(knee,.055,color);this.box(hip,[.19,.2,.2],'#30485b');
+    }
+    this.box(local([0,-.03,0]),[.54,.19,.31],'#405a6c',basis);this.box(local([0,.27,0]),[.5,.43,.33],'#bbcfd8',basis);this.box(local([0,.3,-.18]),[.32,.19,.04],'#253e50',basis);this.box(local([0,.33,-.208]),[.19,.045,.025],'#6ce3c4',basis);this.box(local([0,.57,0]),[.15,.12,.14],'#253f52',basis);this.box(local([0,.74,0]),[.36,.26,.29],'#d4e3e8',basis);this.box(local([0,.77,.153]),[.27,.08,.025],'#6ce3c4',basis);this.box(local([0,.74,-.155]),[.27,.1,.025],'#284352',basis);
+    for(let i=0;i<2;i++){const sign=i===0?-1:1;const shoulder=local([sign*.34,.4,0]);const elbow=local([sign*.43,.15,-s.feet[1-i].y*.3]);const hand=local([sign*.37,-.04,s.feet[1-i].y*.4]);this.box(shoulder,[.16,.17,.19],'#385669',basis);this.limb(shoulder,elbow,.105,'#819aa9');this.limb(elbow,hand,.095,'#b4c9d1');this.box(hand,[.12,.14,.13],'#2d495c',basis);}
+    this.faces.sort((a,b)=>b.depth-a.depth).forEach(f=>this.polygon(f.ps,f.color,'#14263355'));
+    this.circles.sort((a,b)=>b.p.d-a.p.d).forEach(({p,r,color})=>{c.beginPath();c.arc(p.x,p.y,r,0,Math.PI*2);c.fillStyle=color;c.fill();});
+    const com=this.project([s.x,.025,s.z]);if(com){c.beginPath();c.arc(com.x,com.y,5,0,Math.PI*2);c.fillStyle=s.stability<.5?'#ffc078':'#e4fff6';c.fill();c.strokeStyle='#102a31';c.lineWidth=2;c.stroke();const top=this.project([s.x,bodyY,s.z]);if(top){c.setLineDash([3,5]);c.beginPath();c.moveTo(com.x,com.y);c.lineTo(top.x,top.y);c.strokeStyle='#a3d7cf55';c.lineWidth=1;c.stroke();c.setLineDash([]);}}
+  }
+}
+function shade(hex,k){const n=parseInt(hex.slice(1),16);return`rgb(${Math.round(((n>>16)&255)*k)},${Math.round(((n>>8)&255)*k)},${Math.round((n&255)*k)})`;}
+
+
+// gamepad.js
+function stickDeadzone(x,y,deadzone){
+  const magnitude=Math.hypot(x,y);
+  if(magnitude<=deadzone)return{x:0,y:0};
+  const scale=Math.min(1,(magnitude-deadzone)/(1-deadzone))/magnitude;
+  return{x:x*scale,y:y*scale};
+}
+class PadController {
+  constructor(onDisconnect,onToggle,onRecover){
+    this.onDisconnect=onDisconnect;this.onToggle=onToggle;this.onRecover=onRecover;
+    this.map=[0,1,2,3];this.sign=[1,1,1,1];this.center=[];this.buttonWas={};
+    this.device=null;this.error='';this.learning=null;this.lastList='';this.lastIdentity='';
+    this.$=id=>document.getElementById(id);
+    this.axes=['axisLX','axisLY','axisRX','axisRY'];
+    this.setAxisOptions(8);
+    this.axes.forEach((id,i)=>this.$(id).addEventListener('change',()=>{this.map[i]=+this.$(id).value;this.sign[i]=1;this.center=[];}));
+    this.$('device').addEventListener('change',()=>{this.center=[];this.buttonWas={};this.lastIdentity='';this.learning=null;this.$('learnNote').textContent='';});
+    this.$('deadzone').addEventListener('input',()=>{this.$('deadzoneValue').textContent=this.$('deadzone').value+'%';});
+    this.$('calibrate').addEventListener('click',()=>this.calibrate());
+    this.$('learnAxes').addEventListener('click',()=>this.learn());
+    addEventListener('gamepaddisconnected',()=>this.poll());
+  }
+  setAxisOptions(n){this.axes.forEach((id,i)=>{const select=this.$(id);select.replaceChildren();for(let a=0;a<Math.max(n,4);a++){const o=document.createElement('option');o.value=String(a);o.textContent='軸 '+a;select.append(o);}select.value=String(this.map[i]);});}
+  calibrate(){
+    if(!this.device){this.$('learnNote').textContent='画面をクリックしてから、コントローラーのボタンを押してください。';this.$('deviceSettings').open=true;return;}
+    if(this.map.some(i=>Math.abs(this.device.axes[i]||0)>.35)){this.$('learnNote').textContent='スティックから手を離してから、もう一度「中心を補正」を押してください。';this.$('deviceSettings').open=true;return;}
+    this.center=Array.from(this.device.axes);this.$('learnNote').textContent='中心を補正しました。';
+  }
+  learn(){
+    this.$('deviceSettings').open=true;
+    if(!this.device){this.$('learnNote').textContent='先にコントローラーのボタンを1回押して、接続を検出してください。';return;}
+    this.learning={step:0,base:Array.from(this.device.axes),used:[],wait:false};
+    this.onDisconnect();this.learnPrompt();
+  }
+  learnPrompt(){const labels=['左スティックを右へ大きく倒してください。','左スティックを上へ大きく倒してください。','右スティックを右へ大きく倒してください。','右スティックを上へ大きく倒してください。'];this.$('learnNote').textContent=this.learning.wait?'スティックを中央に戻してください。':`${this.learning.step+1}/4 · ${labels[this.learning.step]}`;}
+  learnTick(p){const l=this.learning;if(!l)return;
+    const deltas=p.axes.map((v,i)=>v-(l.base[i]||0));
+    if(l.wait){if(deltas.every(v=>Math.abs(v)<.2)){l.wait=false;l.step++;if(l.step===4){this.center=l.base;this.learning=null;this.$('learnNote').textContent='4方向の設定が完了しました。「歩行を始める」で再開できます。';this.setAxisOptions(p.axes.length);return;}this.learnPrompt();}return;}
+    let best=-1,strength=.55;deltas.forEach((v,i)=>{if(!l.used.includes(i)&&Math.abs(v)>strength){best=i;strength=Math.abs(v);}});
+    if(best<0)return;this.map[l.step]=best;this.sign[l.step]=Math.sign(deltas[best])*(l.step%2===0?1:-1);l.used.push(best);l.wait=true;this.learnPrompt();
+  }
+  poll(){
+    let pads=[];try{if(!navigator.getGamepads)throw new Error('unsupported');pads=Array.from(navigator.getGamepads()).filter(p=>p&&p.connected);this.error='';}catch{this.error='この画面ではコントローラーを取得できません。Chrome / Edgeで開いてください。';}
+    const list=pads.map(p=>p.index+':'+p.id).join('|');
+    if(list!==this.lastList){const select=this.$('device'),value=select.value;select.replaceChildren();const auto=document.createElement('option');auto.value='auto';auto.textContent='自動検出';select.append(auto);pads.forEach(p=>{const o=document.createElement('option');o.value=String(p.index);o.textContent=p.id;select.append(o);});select.value=Array.from(select.options).some(o=>o.value===value)?value:'auto';this.lastList=list;}
+    const selection=this.$('device').value;
+    const p=selection==='auto'?pads.find(p=>p.axes.length>=4)||pads[0]:pads.find(p=>String(p.index)===selection);
+    const identity=p?`${p.index}:${p.id}`:'';
+    if(identity!==this.lastIdentity){if(this.device)this.onDisconnect();this.center=[];this.buttonWas={};this.learning=null;this.device=p||null;this.lastIdentity=identity;if(p)this.setAxisOptions(p.axes.length);}
+    this.device=p||null;
+    this.$('connection').classList.toggle('connected',!!p);
+    this.$('connectionText').textContent=p?'コントローラー接続済み':'コントローラー待機';
+    if(!p){this.$('deviceInfo').textContent=this.error||'未検出 · キーボードでも操作できます';this.$('inputNote').textContent=this.error||'画面をクリックし、コントローラーのボタンを1回押してください。';return null;}
+    this.$('deviceInfo').textContent=`${p.id} · ${p.axes.length}軸 · ${p.mapping==='standard'?'標準配置':'軸を確認してください'}`;
+    this.$('inputNote').textContent=p.axes.length<4?'2本のスティックに必要な軸が不足しています。別の機器かキーボードを使用してください。':'Startで開始・停止。左右のスティックでそれぞれの脚を操作します。';
+    if(this.learning){this.learnTick(p);return null;}
+    for(const n of [0,9]){const pressed=!!p.buttons[n]?.pressed;if(pressed&&!this.buttonWas[n]){if(n===9)this.onToggle();else this.onRecover();}this.buttonWas[n]=pressed;}
+    const vals=this.map.map((n,i)=>clamp(((p.axes[n]||0)-(this.center[n]||0))*this.sign[i],-1,1));
+    const invert=this.$('invertY').checked?-1:1,dz=+this.$('deadzone').value/100;
+    return{left:stickDeadzone(vals[0],vals[1]*invert,dz),right:stickDeadzone(vals[2],vals[3]*invert,dz)};
+  }
+}
+
+
+// app.js
+const $=id=>document.getElementById(id);
+const sim=new Walker(),renderer=new Renderer($('scene'));
+let running=false,last=performance.now(),accumulator=0;
+const keys=new Set(),touch={left:{x:0,y:0},right:{x:0,y:0}};
+let input={left:{x:0,y:0},right:{x:0,y:0}};
+function reset(){sim.reset();accumulator=0;$('fallOverlay').hidden=true;updateUI();}
+function toggle(){if(sim.fallen)reset();running=!running;updateUI();}
+$('start').addEventListener('click',()=>{toggle();$('scene').focus({preventScroll:true});});$('reset').addEventListener('click',()=>{reset();$('scene').focus({preventScroll:true});});$('retry').addEventListener('click',()=>{reset();running=true;$('scene').focus({preventScroll:true});});
+const pad=new PadController(()=>{running=false;updateUI();},toggle,()=>{if(sim.fallen){reset();running=true;}});
+$('helpButton').addEventListener('click',()=>{const open=$('help').hidden;$('help').hidden=!open;$('helpButton').setAttribute('aria-expanded',String(open));});
+function setPreset(name){const p=PRESETS[name];if(!p)return;sim.settings={...p};$('assist').value=p.assist;$('severity').value=p.severity;$('speed').value=p.speed*100;document.querySelectorAll('[data-preset]').forEach(b=>{const yes=b.dataset.preset===name;b.classList.toggle('selected',yes);b.setAttribute('aria-pressed',String(yes));});$('presetName').textContent={easy:'やさしい',normal:'標準',hard:'シビア'}[name];updateSettings();}
+function updateSettings(){sim.settings.assist=+$('assist').value;sim.settings.severity=+$('severity').value;sim.settings.speed=+$('speed').value/100;$('assistValue').textContent=sim.settings.assist+'%';$('severityValue').textContent=sim.settings.severity+'%';$('speedValue').textContent=sim.settings.speed.toFixed(2)+'×';}
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.preset)));
+['assist','severity','speed'].forEach(id=>$(id).addEventListener('input',()=>{updateSettings();$('presetName').textContent='カスタム';document.querySelectorAll('[data-preset]').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false');});}));
+const controlKeys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','KeyR'];
+addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName))return;if(controlKeys.includes(e.code)){e.preventDefault();keys.add(e.code);if(!e.repeat&&e.code==='Space')toggle();if(!e.repeat&&e.code==='KeyR')reset();}});
+addEventListener('keyup',e=>keys.delete(e.code));
+addEventListener('blur',()=>{keys.clear();touch.left={x:0,y:0};touch.right={x:0,y:0};if(running){running=false;updateUI();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){running=false;keys.clear();accumulator=0;updateUI();}});
+for(const [side,id] of [['left','padLeft'],['right','padRight']]){const el=$(id);let pid=null;const move=e=>{const r=el.getBoundingClientRect();let x=clamp((e.clientX-r.left-r.width/2)/(r.width*.4),-1,1),y=clamp((e.clientY-r.top-r.height/2)/(r.height*.4),-1,1);const mag=Math.hypot(x,y);if(mag>1){x/=mag;y/=mag;}touch[side]={x,y};};el.addEventListener('pointerdown',e=>{pid=e.pointerId;el.setPointerCapture(pid);move(e);});el.addEventListener('pointermove',e=>{if(e.pointerId===pid)move(e);});const release=e=>{if(e.pointerId===pid){touch[side]={x:0,y:0};pid=null;}};el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);el.addEventListener('lostpointercapture',release);}
+function readInput(){const gp=pad.poll();input={left:{x:clamp((keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0)+touch.left.x+(gp?.left.x||0),-1,1),y:clamp((keys.has('KeyS')?1:0)-(keys.has('KeyW')?1:0)+touch.left.y+(gp?.left.y||0),-1,1)},right:{x:clamp((keys.has('ArrowRight')?1:0)-(keys.has('ArrowLeft')?1:0)+touch.right.x+(gp?.right.x||0),-1,1),y:clamp((keys.has('ArrowDown')?1:0)-(keys.has('ArrowUp')?1:0)+touch.right.y+(gp?.right.y||0),-1,1)}};}
+function updateUI(){$('distance').textContent=sim.distance.toFixed(2);$('steps').textContent=sim.steps;$('stabilityValue').textContent=Math.round(sim.stability*100)+'%';$('stabilityBar').style.width=sim.stability*100+'%';$('stabilityBar').style.background=sim.stability<.45?'#ffc078':'#6ce3c4';$('loadLeft').style.width=sim.load[0]*100+'%';$('hint').textContent=sim.message;$('runState').textContent=sim.fallen?'転倒':running?'歩行中':'一時停止';$('runState').classList.toggle('warning',sim.fallen||sim.stability<.45);$('start').textContent=running?'一時停止':'歩行を始める';for(const [i,side] of ['Left','Right'].entries()){$('dot'+side).style.transform=`translate(${input[i===0?'left':'right'].x*32}px,${input[i===0?'left':'right'].y*32}px)`;$('foot'+side).textContent={stance:'接地',swing:'移動中',landing:'着地中'}[sim.feet[i].phase];}$('fallOverlay').hidden=!sim.fallen;if(sim.fallen)$('fallReason').textContent=sim.reason;}
+let uiTime=0;function frame(now){const elapsed=Math.min((now-last)/1000,.1);last=now;readInput();if(running&&!sim.fallen){accumulator+=elapsed;while(accumulator>=1/120){sim.step(1/120,input);accumulator-=1/120;}}else{accumulator=0;if(sim.fallen)sim.step(elapsed,input);}renderer.draw(sim);if(now-uiTime>65){updateUI();uiTime=now;}requestAnimationFrame(frame);}updateSettings();updateUI();requestAnimationFrame(frame);
+
+// Page-native actions share the exact same state as the visible controls.
+const context=document.modelContext;
+if(context?.registerTool){const lifecycle=new AbortController();addEventListener('pagehide',()=>lifecycle.abort(),{once:true});const register=tool=>{try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}};
+register({name:'read_walking_state',title:'歩行状態を確認',description:'Read distance, feet, stability and the current difficulty settings.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute:()=>({...sim.snapshot(),running,controllerConnected:!!pad.device})});
+register({name:'configure_walking_difficulty',title:'歩行難易度を設定',description:'Apply easy, normal or hard to the simulator, using the same presets as the visible buttons.',inputSchema:{type:'object',properties:{preset:{type:'string',enum:['easy','normal','hard']}},required:['preset'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute:input=>{if(!input||!Object.hasOwn(PRESETS,input.preset)||Object.keys(input).some(k=>k!=='preset'))throw new Error('preset must be easy, normal or hard.');setPreset(input.preset);updateUI();return sim.snapshot();}});
+register({name:'reset_walking_simulation',title:'歩行をリセット',description:'Return the robot to its initial upright pose and clear distance and step count.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute:input=>{if(input&&Object.keys(input).length)throw new Error('No parameters are accepted.');reset();return sim.snapshot();}});
+}
+
+})();
+</script>
+</body>
+</html>
